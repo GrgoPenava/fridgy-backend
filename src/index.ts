@@ -8,6 +8,7 @@ import { fridgeRoutes } from "./modules/fridge/routes";
 import { productRoutes } from "./modules/product/routes";
 import jwt from "@fastify/jwt";
 import { usersRoutes } from "./modules/user/routes";
+import { roleRoutes } from "./modules/role/routes";
 
 const app = Fastify({ logger: loggerConfig });
 
@@ -23,6 +24,7 @@ app.register(authRoutes, { prefix: "/auth" });
 app.register(fridgeRoutes, { prefix: "/fridge" });
 app.register(productRoutes, { prefix: "/product" });
 app.register(usersRoutes, { prefix: "/users" });
+app.register(roleRoutes, { prefix: "/role" });
 
 app.get("/", async () => {
   logger.info("Test ruta je pozvana");
