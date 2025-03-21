@@ -13,7 +13,7 @@ import { authenticate } from "../../middleware/auth";
 
 export async function fridgeRoutes(app: FastifyInstance) {
   app.post(
-    "/fridges",
+    "",
     {
       schema: {
         ...createFridgeSchema,
@@ -23,7 +23,7 @@ export async function fridgeRoutes(app: FastifyInstance) {
     createFridgeController
   );
   app.post(
-    "/fridges/add-user",
+    "/add-user",
     {
       schema: {
         ...addUserToFridgeSchema,
@@ -35,7 +35,7 @@ export async function fridgeRoutes(app: FastifyInstance) {
   app.get<{
     Params: { id: string };
   }>(
-    "/fridges/:id",
+    "/:id",
     {
       schema: {
         ...getFridgeSchema,

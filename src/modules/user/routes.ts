@@ -4,7 +4,7 @@ import { usersSchema } from "./schema";
 import { authenticate } from "../../middleware/auth";
 
 export async function usersRoutes(app: FastifyInstance) {
-  app.get("/user", { schema: { ...usersSchema, tags: ["User"] } }, getAllUsers);
+  app.get("", { schema: { ...usersSchema, tags: ["User"] } }, getAllUsers);
   //app.post("/user", { schema: usersSchema }, addUserToFridgeController);
   /* app.get<{
     Params: { id: string };

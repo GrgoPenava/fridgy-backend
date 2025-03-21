@@ -13,6 +13,7 @@ export async function createFridge(
         users: {
           connect: { id: userId },
         },
+        createdById: userId,
       },
     });
     logger.info({ fridgeId: fridge.id, userId }, "Frižider kreiran");

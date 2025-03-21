@@ -6,7 +6,10 @@ export async function addProductController(
   reply: FastifyReply
 ) {
   const { barcode, fridgeId } = request.body;
-  const response = await addProductByBarcode(barcode, fridgeId);
+  console.log("cc", request);
+
+  const userId = request.user.id;
+  const response = await addProductByBarcode(barcode, fridgeId, userId);
   reply.status(response.code).send(response);
 }
 
@@ -19,5 +22,5 @@ export async function getProductController(
     return reply.status(400).send({ message: "Product ID not valid" });
   }
   const response = await getProduct(productId);
-  reply.status(response.code).send(response);
+  return reply.status(response.code).send(response);
 }

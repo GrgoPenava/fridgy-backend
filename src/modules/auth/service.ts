@@ -1,4 +1,5 @@
 import { prisma } from "../../config/database";
+import { UserWithRole } from "../../types";
 import { hashPassword, comparePassword } from "../../utils/hash";
 import { Prisma, User } from "@prisma/client";
 import { FastifyInstance } from "fastify";
@@ -6,12 +7,33 @@ import { FastifyInstance } from "fastify";
 export async function registerUser(
   email: string,
   password: string
-): Promise<User> {
+): Promise<UserWithRole> {
   const hashedPassword = await hashPassword(password);
   try {
-    return await prisma.user.create({
-      data: { email, password: hashedPassword },
+    const user = await prisma.user.create({
+      data: {
+        email,
+        password: hashedPassword,
+        role: {
+          connectOrCreate: {
+            where: { name: "basic" },
+            create: { name: "basic" },
+          },
+        },
+      },
+      include: { role: true },
     });
+
+    if (!user.role) {
+      throw new Error("User role assignment failed");
+    }
+    return {
+      ...user,
+      role: {
+        id: user.role.id,
+        name: user.role.name,
+      },
+    } as UserWithRole;
   } catch (error) {
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -27,8 +49,11 @@ export async function loginUser(
   email: string,
   password: string,
   fastify: FastifyInstance
-): Promise<{ user: User; token: string }> {
-  const user = await prisma.user.findUnique({ where: { email } });
+): Promise<{ user: UserWithRole; token: string }> {
+  const user = await prisma.user.findUnique({
+    where: { email },
+    include: { role: true },
+  });
 
   if (!user) {
     throw new Error("Invalid email or password");
@@ -39,11 +64,10 @@ export async function loginUser(
     throw new Error("Invalid email or password");
   }
 
-  // Generiraj JWT token
   const token = fastify.jwt.sign(
     { id: user.id, email: user.email },
-    { expiresIn: "1h" } // Token ističe za 1 sat
+    { expiresIn: "1h" }
   );
 
-  return { user, token };
+  return { user: user as UserWithRole, token };
 }

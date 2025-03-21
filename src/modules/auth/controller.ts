@@ -1,5 +1,7 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { registerUser, loginUser } from "./service";
+import { User } from "@prisma/client";
+import { UserWithRole } from "../../types";
 
 export async function register(
   request: FastifyRequest<{ Body: { email: string; password: string } }>,
@@ -10,7 +12,7 @@ export async function register(
     const user = await registerUser(email, password);
     reply.status(201).send({
       message: "User created successfully",
-      user: { id: user.id, email: user.email },
+      user: { id: user.id, email: user.email, role: user.role.name },
     });
   } catch (error) {
     if (error instanceof Error && error.message === "Email already exists") {
@@ -29,12 +31,10 @@ export async function login(
     const { email, password } = request.body;
     const { user, token } = await loginUser(email, password, request.server);
 
-    console.log(token);
-
     reply.send({
       message: "Login successful",
-      accessToken: token, // Jasno označen kao accessToken za React Native
-      user: { id: user.id, email: user.email },
+      accessToken: token,
+      user: { id: user.id, email: user.email, role: user.role.name },
     });
   } catch (error) {
     if (

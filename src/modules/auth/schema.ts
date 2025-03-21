@@ -17,6 +17,7 @@ export const registerSchema = {
           properties: {
             id: { type: "integer" },
             email: { type: "string" },
+            role: { type: "string" },
           },
         },
       },
@@ -56,6 +57,7 @@ export const loginSchema = {
           properties: {
             id: { type: "integer" },
             email: { type: "string" },
+            role: { type: "string" },
           },
         },
       },
