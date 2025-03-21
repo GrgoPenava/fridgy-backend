@@ -1,0 +1,32 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  fridges   Fridge[] @relation("FridgeUsers")
+}
+
+model Fridge {
+  id        Int       @id @default(autoincrement())
+  name      String
+  users     User[]    @relation("FridgeUsers")
+  products  Product[]
+}
+
+model Product {
+  id        Int    @id @default(autoincrement())
+  name      String
+  barcode   String @unique
+  calories  Float  @default(0)
+  fridgeId  Int
+  fridge    Fridge @relation(fields: [fridgeId], references: [id])
+}
