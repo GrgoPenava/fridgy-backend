@@ -1,18 +1,18 @@
 import { prisma } from "../../config/database";
-import { UserWithRole } from "../../types";
+import { LoginRequest, RegisterRequest, UserWithRole } from "../../types";
 import { hashPassword, comparePassword } from "../../utils/hash";
 import { Prisma, User } from "@prisma/client";
 import { FastifyInstance } from "fastify";
 
 export async function registerUser(
-  email: string,
-  password: string
+  registerRequest: RegisterRequest
 ): Promise<UserWithRole> {
-  const hashedPassword = await hashPassword(password);
+  const hashedPassword = await hashPassword(registerRequest.password);
   try {
     const user = await prisma.user.create({
       data: {
-        email,
+        email: registerRequest.email,
+        username: registerRequest.username,
         password: hashedPassword,
         role: {
           connectOrCreate: {
@@ -31,6 +31,7 @@ export async function registerUser(
       ...user,
       role: {
         id: user.role.id,
+        username: user.username,
         name: user.role.name,
       },
     } as UserWithRole;
@@ -39,19 +40,26 @@ export async function registerUser(
       error instanceof Prisma.PrismaClientKnownRequestError &&
       error.code === "P2002"
     ) {
-      throw new Error("Email already exists");
+      const target = error.meta?.target as string[];
+      if (target?.includes("email")) {
+        throw new Error("Email already exists");
+      }
+      if (target?.includes("username")) {
+        throw new Error("Username already exists");
+      }
     }
     throw error;
   }
 }
 
 export async function loginUser(
-  email: string,
-  password: string,
+  loginRequest: LoginRequest,
   fastify: FastifyInstance
 ): Promise<{ user: UserWithRole; token: string }> {
-  const user = await prisma.user.findUnique({
-    where: { email },
+  const user = await prisma.user.findFirst({
+    where: {
+      OR: [{ email: loginRequest.email }, { username: loginRequest.username }],
+    },
     include: { role: true },
   });
 
@@ -59,7 +67,10 @@ export async function loginUser(
     throw new Error("Invalid email or password");
   }
 
-  const isPasswordValid = await comparePassword(password, user.password);
+  const isPasswordValid = await comparePassword(
+    loginRequest.password,
+    user.password
+  );
   if (!isPasswordValid) {
     throw new Error("Invalid email or password");
   }
@@ -69,5 +80,15 @@ export async function loginUser(
     { expiresIn: "1h" }
   );
 
-  return { user: user as UserWithRole, token };
+  return {
+    user: {
+      ...user,
+      role: {
+        id: user.role.id,
+        name: user.role.name,
+        username: user.username,
+      },
+    } as UserWithRole,
+    token,
+  };
 }

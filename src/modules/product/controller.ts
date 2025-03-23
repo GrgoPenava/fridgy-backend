@@ -6,7 +6,6 @@ export async function addProductController(
   reply: FastifyReply
 ) {
   const { barcode, fridgeId } = request.body;
-  console.log("cc", request);
 
   const userId = request.user.id;
   const response = await addProductByBarcode(barcode, fridgeId, userId);

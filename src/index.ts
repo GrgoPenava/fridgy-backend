@@ -20,11 +20,11 @@ app.register(jwt, {
 app.register(cors, { origin: "*" });
 configureSwagger(app);
 
-app.register(authRoutes, { prefix: "/auth" });
-app.register(fridgeRoutes, { prefix: "/fridge" });
-app.register(productRoutes, { prefix: "/product" });
-app.register(usersRoutes, { prefix: "/users" });
-app.register(roleRoutes, { prefix: "/role" });
+app.register(authRoutes, { prefix: "api/v1/auth" });
+app.register(fridgeRoutes, { prefix: "api/v1/fridge" });
+app.register(productRoutes, { prefix: "api/v1/product" });
+app.register(usersRoutes, { prefix: "api/v1/users" });
+app.register(roleRoutes, { prefix: "api/v1/role" });
 
 app.get("/", async () => {
   logger.info("Test ruta je pozvana");

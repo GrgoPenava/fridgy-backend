@@ -8,7 +8,6 @@ export async function addProductByBarcode(
   fridgeId: number,
   userId: number
 ): Promise<Response> {
-  console.log("bb", userId);
   try {
     const fridge = await prisma.fridge.findUnique({ where: { id: fridgeId } });
     if (!fridge) {
