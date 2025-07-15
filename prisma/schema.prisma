@@ -9,24 +9,48 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  password  String
-  fridges   Fridge[] @relation("FridgeUsers")
+  id            Int       @id @default(autoincrement())
+  email         String    @unique
+  username      String    @unique
+  password      String
+  fridges       Fridge[]  @relation("FridgeUsers")
+  createdFridges Fridge[] @relation("FridgeCreator")
+  createdProducts Product[] @relation("ProductCreator")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  roleId        Int      @default(1)
+  role          Role     @relation(fields: [roleId], references: [id])
 }
 
 model Fridge {
-  id        Int       @id @default(autoincrement())
-  name      String
-  users     User[]    @relation("FridgeUsers")
-  products  Product[]
+  id          Int       @id @default(autoincrement())
+  name        String
+  users       User[]    @relation("FridgeUsers")
+  products    Product[]
+  createdBy   User      @relation("FridgeCreator", fields: [createdById], references: [id])
+  createdById Int
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
 model Product {
-  id        Int    @id @default(autoincrement())
-  name      String
-  barcode   String @unique
-  calories  Float  @default(0)
-  fridgeId  Int
-  fridge    Fridge @relation(fields: [fridgeId], references: [id])
+  id          Int      @id @default(autoincrement())
+  name        String
+  barcode     String   @unique
+  calories    Float    @default(0)
+  fridgeId    Int
+  jsonDocs    Json?
+  fridge      Fridge   @relation(fields: [fridgeId], references: [id])
+  createdBy   User     @relation("ProductCreator", fields: [createdById], references: [id])
+  createdById Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Role {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  users     User[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

@@ -1,9 +1,8 @@
 import pino from "pino";
 import * as dotenv from "dotenv";
 
-dotenv.config(); // Učitaj .env datoteku
+dotenv.config();
 
-// Konfiguracija za Pino logger
 export const loggerConfig = {
   level: process.env.LOG_LEVEL || "info",
   transport: {
@@ -16,6 +15,5 @@ export const loggerConfig = {
   },
 };
 
-// Kreiraj i izvozi instancu loggera
 const logger = pino(loggerConfig);
 export default logger;

@@ -25,7 +25,7 @@ export const getFridgeSchema = {
     type: "object",
     required: ["id"],
     properties: {
-      id: { type: "string" }, // Promijenjeno iz "number" u "string"
+      id: { type: "string" },
     },
   },
 };

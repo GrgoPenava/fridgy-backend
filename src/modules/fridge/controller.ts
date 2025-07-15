@@ -23,11 +23,11 @@ export async function getFridgeController(
   request: FastifyRequest<{ Params: { id: string } }>,
   reply: FastifyReply
 ) {
-  const fridgeId = Number(request.params.id); // Osiguraj brojčanu konverziju
+  const fridgeId = Number(request.params.id);
   if (isNaN(fridgeId)) {
     return reply.status(400).send({ message: "Neispravan ID frižidera" });
   }
 
   const response = await getFridge(fridgeId);
-  reply.status(response.code).send(response);
+  return reply.status(response.code).send(response);
 }

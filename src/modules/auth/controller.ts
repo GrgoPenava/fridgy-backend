@@ -1,20 +1,34 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { registerUser, loginUser } from "./service";
+import { User } from "@prisma/client";
+import { LoginRequest, RegisterRequest, UserWithRole } from "../../types";
 
 export async function register(
-  request: FastifyRequest<{ Body: { email: string; password: string } }>,
+  request: FastifyRequest<{
+    Body: RegisterRequest;
+  }>,
   reply: FastifyReply
 ) {
   try {
-    const { email, password } = request.body;
-    const user = await registerUser(email, password);
+    const registerRequest = request.body;
+    const user = await registerUser(registerRequest);
     reply.status(201).send({
       message: "User created successfully",
-      user: { id: user.id, email: user.email },
+      user: {
+        id: user.id,
+        email: user.email,
+        role: user.role.name,
+        username: user.username,
+      },
     });
   } catch (error) {
-    if (error instanceof Error && error.message === "Email already exists") {
-      return reply.status(409).send({ error: error.message });
+    if (error instanceof Error) {
+      if (error.message === "Email already exists") {
+        return reply.status(409).send({ error: "Email already exists" });
+      }
+      if (error.message === "Username already exists") {
+        return reply.status(409).send({ error: "Username already exists" });
+      }
     }
     request.log.error(error);
     reply.status(500).send({ error: "Internal server error" });
@@ -22,19 +36,17 @@ export async function register(
 }
 
 export async function login(
-  request: FastifyRequest<{ Body: { email: string; password: string } }>,
+  request: FastifyRequest<{ Body: LoginRequest }>,
   reply: FastifyReply
 ) {
   try {
-    const { email, password } = request.body;
-    const { user, token } = await loginUser(email, password, request.server);
-
-    console.log(token);
+    const loginRequest = request.body;
+    const { user, token } = await loginUser(loginRequest, request.server);
 
     reply.send({
       message: "Login successful",
-      accessToken: token, // Jasno označen kao accessToken za React Native
-      user: { id: user.id, email: user.email },
+      accessToken: token,
+      user: { id: user.id, email: user.email, role: user.role.name },
     });
   } catch (error) {
     if (

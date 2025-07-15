@@ -1,9 +1,10 @@
 export const registerSchema = {
   body: {
     type: "object",
-    required: ["email", "password"],
+    required: ["email", "password", "username"],
     properties: {
       email: { type: "string", format: "email" },
+      username: { type: "string", minLength: 6 },
       password: { type: "string", minLength: 6 },
     },
   },
@@ -17,6 +18,8 @@ export const registerSchema = {
           properties: {
             id: { type: "integer" },
             email: { type: "string" },
+            username: { type: "string" },
+            role: { type: "string" },
           },
         },
       },
@@ -39,10 +42,11 @@ export const registerSchema = {
 export const loginSchema = {
   body: {
     type: "object",
-    required: ["email", "password"],
+    required: ["email", "password", "username"],
     properties: {
       email: { type: "string", format: "email" },
-      password: { type: "string", minLength: 6 },
+      username: { type: "string" },
+      password: { type: "string" },
     },
   },
   response: {
@@ -56,6 +60,8 @@ export const loginSchema = {
           properties: {
             id: { type: "integer" },
             email: { type: "string" },
+            username: { type: "string" },
+            role: { type: "string" },
           },
         },
       },

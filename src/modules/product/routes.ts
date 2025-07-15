@@ -4,13 +4,18 @@ import { addProductSchema, getProductSchema } from "./schema";
 import { authenticate } from "../../middleware/auth";
 
 export async function productRoutes(app: FastifyInstance) {
-  app.post(
-    "/products",
-    { schema: { ...addProductSchema, tags: ["Product"] } },
+  app.post<{
+    Body: { barcode: string; fridgeId: number };
+  }>(
+    "",
+    {
+      schema: { ...addProductSchema, tags: ["Product"] },
+      preHandler: authenticate,
+    },
     addProductController
   );
   app.get<{ Params: { id: string } }>(
-    "/products/:id",
+    "/:id",
     {
       schema: { ...getProductSchema, tags: ["Product"] },
       preHandler: authenticate,
